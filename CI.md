@@ -25,8 +25,11 @@ workflow on the repaired commit. Its head guard checks the live PR before and
 after validation. Repository scripts never run in the write-enabled publisher.
 Existing Svelte formatting exclusions remain in biome.json.
 
-The shared preset keeps automerge disabled until the corrected policy and strict
-required-check settings are activated. Pre-1.0 minor changes and selected risky
-majors require explicit dashboard approval; successful CI remains mandatory.
+The shared v1.1.0 policy makes every dependency update type eligible for unattended
+merging, including majors and shared-policy updates, without dashboard approval.
+All four exact current-head jobs in `.github/merge-policy.json` must pass.
+Svelte and TypeScript checks remain required; compatibility is tested in CI.
+The checked merge preserves genuine sign-offs and dispatches this full workflow
+for the exact merged commit. Other changes retain manual review through ghmerge.
 Live browser-store submission and loading the extension against a real Google
 account remain manual release checks. The tag-only release workflow is preserved.
