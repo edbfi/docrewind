@@ -43,7 +43,7 @@ describe("PopupApp", () => {
     expect(fakeBrowser.runtime.openOptionsPage).toHaveBeenCalledTimes(1);
   });
 
-  it("toggles to the About ledger showing version, author edbpede, and license", async () => {
+  it("toggles to the About ledger showing version, current author profile, and license", async () => {
     render(PopupApp);
     await fireEvent.click(screen.getByRole("button", { name: strings.popup.aboutButton }));
 
