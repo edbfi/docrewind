@@ -25,11 +25,20 @@ workflow on the repaired commit. Its head guard checks the live PR before and
 after validation. Repository scripts never run in the write-enabled publisher.
 Existing Svelte formatting exclusions remain in biome.json.
 
-The shared v1.1.0 policy makes every dependency update type eligible for unattended
-merging, including majors and shared-policy updates, without dashboard approval.
-All four exact current-head jobs in `.github/merge-policy.json` must pass.
-Svelte and TypeScript checks remain required; compatibility is tested in CI.
-The checked merge preserves genuine sign-offs and dispatches this full workflow
-for the exact merged commit. Other changes retain manual review through ghmerge.
+The v3 preset leaves native Renovate PR merging disabled during migration.
+The legacy Actions merger and maintainer command are retired. The separately
+required `policy / ci / policy` check validates the PR title, commit sign-offs,
+review state and hold labels from fresh read-only API evidence. Protection must
+require this check and `ci / required` from GitHub Actions with current branches;
+a protected real Renovate canary is required before a separate opt-in. Svelte and
+TypeScript compatibility checks remain mandatory.
 Live browser-store submission and loading the extension against a real Google
 account remain manual release checks. The tag-only release workflow is preserved.
+
+Repair CI recovery reads `.github/repair-policy.json`. Recovery remains disabled,
+preserving the previous policy; the configured Biome App repair workflow remains
+enabled and uses the released v3 action. A repair must receive complete current-head
+CI and policy checks. If a workflow-token publication suppresses PR events, the
+missing policy check blocks merging until a supported App/Renovate update triggers
+full validation. Metadata and review events refresh policy; GitHub review rules
+provide the independent server-side review guarantee during event propagation.
