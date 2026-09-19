@@ -13,7 +13,7 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "lint:firefox": "web-ext lint --source-dir .output/firefox-mv3",
-    "compile": "svelte-check --tsconfig ./tsconfig.json && tsc --noEmit",
+    "compile": "svelte-check --tsconfig ./tsconfig.json && tsc --noEmit && bun run check:native",
     "test": "vitest",
     "test:run": "vitest run",
     "test:logic": "bun test ./lib/core/docs/decoder ./lib/core/docs/reconstruction ./lib/core/timeline ./lib/core/domain ./lib/core/protocol ./lib/core/retrieval ./lib/core/worker ./lib/core/docs-url ./lib/core/replay ./lib/core/replay-core ./lib/core/sheets/decoder ./lib/core/sheets/reconstruction ./lib/core/slides/decoder ./lib/core/slides/reconstruction ./lib/core/i18n ./lib/core/identity ./lib/core/classroom ./lib/core/summary ./lib/core/theme.test.ts",
@@ -22,7 +22,8 @@
     "check": "biome check --write .",
     "hooks": "prek run --all-files",
     "hooks:install": "prek install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push",
-    "postinstall": "wxt prepare"
+    "postinstall": "wxt prepare",
+    "check:native": "bunx --bun svelte-check --tsgo --tsconfig ./tsconfig.json"
   },
   "dependencies": {
     "@webext-core/messaging": "4.0.0",
@@ -49,6 +50,7 @@
     "vite": "8.3.0",
     "vitest": "5.0.1",
     "web-ext": "10.6.0",
-    "wxt": "0.21.4"
+    "wxt": "0.21.4",
+    "@typescript/native": "npm:typescript@7.0.2"
   }
 }
