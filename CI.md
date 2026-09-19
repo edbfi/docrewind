@@ -25,13 +25,15 @@ workflow on the repaired commit. Its head guard checks the live PR before and
 after validation. Repository scripts never run in the write-enabled publisher.
 Existing Svelte formatting exclusions remain in biome.json.
 
-The v3 preset leaves native Renovate PR merging disabled during migration.
-The legacy Actions merger and maintainer command are retired. The separately
-required `policy / ci / policy` check validates the PR title, commit sign-offs,
-review state and hold labels from fresh read-only API evidence. Protection must
-require this check and `ci / required` from GitHub Actions with current branches;
-a protected real Renovate canary is required before a separate opt-in. Svelte and
-TypeScript compatibility checks remain mandatory.
+Renovate owns ongoing dependency merging after the protected native canary
+[automation#39](https://github.com/edbfi/automation/pull/39). Native PR rebase merges
+preserve signed commits. The legacy Actions merger and maintainer command are
+retired. The separately required `policy / ci / policy` check validates the PR
+title, commit sign-offs, review state and hold labels from fresh read-only API
+evidence. Protection requires this check and `ci / required` from GitHub Actions
+for the current head and base. Release ages and the TypeScript 7 hold remain in
+place; shared automation configuration updates remain manual. Svelte and TypeScript
+compatibility checks remain mandatory.
 Live browser-store submission and loading the extension against a real Google
 account remain manual release checks. The tag-only release workflow is preserved.
 
