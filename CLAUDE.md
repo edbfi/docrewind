@@ -118,4 +118,3 @@ ignore a whole gated dir (the disjointness guard fails CI).
   (`check` = Biome, `compile` = typecheck), `bun:test` for `lib/core`, `jsdom`, double quotes, `lib/platform/` instead of `utils/`.
 - `lib/core/fixtures/README.md`: the fixture corpus's acceptance tiers (`expectedFinalText` is worked out by hand,
   not snapshotted). Read it before adding or changing decoder/reconstruction fixtures.
-- `CI.md`: CI lanes, repair and Renovate policy. Read it before editing `.github/workflows/`.
