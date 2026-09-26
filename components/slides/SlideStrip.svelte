@@ -1,68 +1,68 @@
 <script module lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // SlideStrip — the slide navigator for a Slides replay (the Slides analogue of
-  // SheetTabs). A horizontally-scrollable filmstrip of live thumbnails (each a small
-  // `SlideCanvas` of the reconstructed slide at the CURRENT revision), so the strip
-  // reflects the deck AND its slide set at this moment in history. Selecting a
-  // thumbnail swaps the hero SlideViewport below — the textbook WAI-ARIA tabs case,
-  // so this carries the full tab contract: roving `tabindex` (only the active tab is
-  // in the page Tab order), arrow-key navigation (Left/Right/Home/End, focus follows
-  // selection), and an `aria-controls`/`role="tabpanel"` link to the slide panel.
-  //
-  // Content-free chrome (slide NUMBERS, never a caption); only the reconstructed
-  // slide render is shown. Svelte idioms: `{#each}` with runes.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// SlideStrip — the slide navigator for a Slides replay (the Slides analogue of
+// SheetTabs). A horizontally-scrollable filmstrip of live thumbnails (each a small
+// `SlideCanvas` of the reconstructed slide at the CURRENT revision), so the strip
+// reflects the deck AND its slide set at this moment in history. Selecting a
+// thumbnail swaps the hero SlideViewport below — the textbook WAI-ARIA tabs case,
+// so this carries the full tab contract: roving `tabindex` (only the active tab is
+// in the page Tab order), arrow-key navigation (Left/Right/Home/End, focus follows
+// selection), and an `aria-controls`/`role="tabpanel"` link to the slide panel.
+//
+// Content-free chrome (slide NUMBERS, never a caption); only the reconstructed
+// slide render is shown. Svelte idioms: `{#each}` with runes.
 
-  import { SLIDE_PANEL_ID, slideTabId } from "./slide-strip";
+import { SLIDE_PANEL_ID, slideTabId } from "./slide-strip";
 
-  export { SLIDE_PANEL_ID, slideTabId };
+export { SLIDE_PANEL_ID, slideTabId };
 </script>
 
 <script lang="ts">
-  import { tick } from "svelte";
-  import SlideCanvas from "@/components/slides/SlideCanvas.svelte";
-  import { slideOf, strings } from "@/lib/core/i18n/strings";
-  import type { RenderedSlide } from "@/lib/core/slides/reconstruction/render";
+import { tick } from "svelte";
+import SlideCanvas from "@/components/slides/SlideCanvas.svelte";
+import { slideOf, strings } from "@/lib/core/i18n/strings";
+import type { RenderedSlide } from "@/lib/core/slides/reconstruction/render";
 
-  interface SlideStripProps {
-    readonly slides: readonly RenderedSlide[];
-    readonly activeIndex: number;
-    readonly onSelect: (index: number) => void;
+interface SlideStripProps {
+  readonly slides: readonly RenderedSlide[];
+  readonly activeIndex: number;
+  readonly onSelect: (index: number) => void;
+}
+
+const { slides, activeIndex, onSelect }: SlideStripProps = $props();
+
+let stripEl: HTMLDivElement | undefined = $state();
+
+const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
+  const count = slides.length;
+  if (count === 0) return;
+  const current = activeIndex;
+  let next: number;
+  switch (event.key) {
+    case "ArrowRight":
+      next = (current + 1) % count;
+      break;
+    case "ArrowLeft":
+      next = (current - 1 + count) % count;
+      break;
+    case "Home":
+      next = 0;
+      break;
+    case "End":
+      next = count - 1;
+      break;
+    default:
+      return;
   }
-
-  const { slides, activeIndex, onSelect }: SlideStripProps = $props();
-
-  let stripEl: HTMLDivElement | undefined = $state();
-
-  const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
-    const count = slides.length;
-    if (count === 0) return;
-    const current = activeIndex;
-    let next: number;
-    switch (event.key) {
-      case "ArrowRight":
-        next = (current + 1) % count;
-        break;
-      case "ArrowLeft":
-        next = (current - 1 + count) % count;
-        break;
-      case "Home":
-        next = 0;
-        break;
-      case "End":
-        next = count - 1;
-        break;
-      default:
-        return;
-    }
-    event.preventDefault();
-    onSelect(next);
-    // Solid applied the selection synchronously; Svelte batches, so the new
-    // roving `tabindex` is only on the DOM after a tick — focus after it.
-    await tick();
-    const tabs = stripEl?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
-    tabs?.[next]?.focus();
-  };
+  event.preventDefault();
+  onSelect(next);
+  // Solid applied the selection synchronously; Svelte batches, so the new
+  // roving `tabindex` is only on the DOM after a tick — focus after it.
+  await tick();
+  const tabs = stripEl?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+  tabs?.[next]?.focus();
+};
 </script>
 
 {#if slides.length > 1}
@@ -96,12 +96,12 @@
         aria-label={slideOf(index + 1, slides.length)}
         tabindex={index === activeIndex ? 0 : -1}
         class={[
-          "group relative shrink-0 rounded-lg outline-none ring-1 ring-hairline transition focus-visible:ring-2 focus-visible:ring-accent",
-          {
-            "ring-2 ring-accent": index === activeIndex,
-            "opacity-70 hover:opacity-100": index !== activeIndex,
-          },
-        ]}
+  "group relative shrink-0 rounded-lg outline-none ring-1 ring-hairline transition focus-visible:ring-2 focus-visible:ring-accent",
+  {
+    "ring-2 ring-accent": index === activeIndex,
+    "opacity-70 hover:opacity-100": index !== activeIndex,
+  },
+]}
         onclick={() => onSelect(index)}
       >
         <div class="w-36 overflow-hidden rounded-lg bg-surface">

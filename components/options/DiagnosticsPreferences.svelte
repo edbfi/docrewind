@@ -1,34 +1,34 @@
 <script lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // DiagnosticsPreferences (plan Phase 5 Step 8 / PRD §10.8). A SETTINGS TOGGLE
-  // ONLY: choose default vs. structural diagnostics verbosity, backed by
-  // `lib/platform/settings.ts`. No diagnostic-report rendering ships in Phase 5 (deferred).
-  // Presented as an iOS-style grouped row with a segmented control on the right.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// DiagnosticsPreferences (plan Phase 5 Step 8 / PRD §10.8). A SETTINGS TOGGLE
+// ONLY: choose default vs. structural diagnostics verbosity, backed by
+// `lib/platform/settings.ts`. No diagnostic-report rendering ships in Phase 5 (deferred).
+// Presented as an iOS-style grouped row with a segmented control on the right.
 
-  import { onMount } from "svelte";
-  import { strings } from "@/lib/core/i18n/strings";
-  import { type DiagnosticsMode, diagnosticsMode } from "@/lib/platform/settings";
+import { onMount } from "svelte";
+import { strings } from "@/lib/core/i18n/strings";
+import { type DiagnosticsMode, diagnosticsMode } from "@/lib/platform/settings";
 
-  const MODES = ["default", "structural"] as const satisfies readonly DiagnosticsMode[];
+const MODES = ["default", "structural"] as const satisfies readonly DiagnosticsMode[];
 
-  function modeLabel(item: DiagnosticsMode): string {
-    return item === "default"
-      ? strings.options.diagnosticsDefault
-      : strings.options.diagnosticsStructural;
-  }
+function modeLabel(item: DiagnosticsMode): string {
+  return item === "default"
+    ? strings.options.diagnosticsDefault
+    : strings.options.diagnosticsStructural;
+}
 
-  // Read-once + optimistic local overwrite (the old `createResource` + `mutate`).
-  let mode = $state<DiagnosticsMode | undefined>(undefined);
+// Read-once + optimistic local overwrite (the old `createResource` + `mutate`).
+let mode = $state<DiagnosticsMode | undefined>(undefined);
 
-  onMount(async () => {
-    mode = await diagnosticsMode.getValue();
-  });
+onMount(async () => {
+  mode = await diagnosticsMode.getValue();
+});
 
-  function select(next: DiagnosticsMode): void {
-    mode = next;
-    void diagnosticsMode.setValue(next);
-  }
+function select(next: DiagnosticsMode): void {
+  mode = next;
+  void diagnosticsMode.setValue(next);
+}
 </script>
 
 <section class="dr-group" aria-labelledby="dr-diagnostics-heading">

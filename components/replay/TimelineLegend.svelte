@@ -1,50 +1,46 @@
 <script lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // TimelineLegend — a quiet marginalia key beneath the scrubber. It names each
-  // writing-activity seal-mark (§ caret-up caret-down caesura) so a first-time
-  // reader can decode the stratum without hovering. Only the kinds ACTUALLY
-  // present in this document's timeline are listed (a key for marks that never
-  // appear would be noise), and the row renders nothing when there are no marks,
-  // so the legend never clutters a markerless replay. The hover/focus data lives
-  // on the marks themselves (Timeline tooltips); this is meaning, not data.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// TimelineLegend — a quiet marginalia key beneath the scrubber. It names each
+// writing-activity seal-mark (§ caret-up caret-down caesura) so a first-time
+// reader can decode the stratum without hovering. Only the kinds ACTUALLY
+// present in this document's timeline are listed (a key for marks that never
+// appear would be noise), and the row renders nothing when there are no marks,
+// so the legend never clutters a markerless replay. The hover/focus data lives
+// on the marks themselves (Timeline tooltips); this is meaning, not data.
 
-  import { strings } from "@/lib/core/i18n/strings";
-  import MarkerIcon from "./MarkerIcon.svelte";
-  import {
-    markerToneClass,
-    type TimelineMarker,
-    type TimelineMarkerKind,
-  } from "./timeline-markers";
+import { strings } from "@/lib/core/i18n/strings";
+import MarkerIcon from "./MarkerIcon.svelte";
+import { markerToneClass, type TimelineMarker, type TimelineMarkerKind } from "./timeline-markers";
 
-  // Stable display order, independent of first-appearance order in the timeline.
-  const KIND_ORDER: readonly TimelineMarkerKind[] = [
-    "session",
-    "large-insertion",
-    "large-deletion",
-    "pause",
-  ];
+// Stable display order, independent of first-appearance order in the timeline.
+const KIND_ORDER: readonly TimelineMarkerKind[] = [
+  "session",
+  "large-insertion",
+  "large-deletion",
+  "pause",
+];
 
-  const KIND_LABEL: Record<TimelineMarkerKind, string> = {
-    session: strings.timeline.markerSession,
-    "large-insertion": strings.timeline.markerLargeInsertion,
-    "large-deletion": strings.timeline.markerLargeDeletion,
-    pause: strings.timeline.markerPause,
-  };
+const KIND_LABEL: Record<TimelineMarkerKind, string> = {
+  session: strings.timeline.markerSession,
+  "large-insertion": strings.timeline.markerLargeInsertion,
+  "large-deletion": strings.timeline.markerLargeDeletion,
+  pause: strings.timeline.markerPause,
+};
 
-  export interface TimelineLegendProps {
-    readonly events: readonly TimelineMarker[];
+export interface TimelineLegendProps {
+  readonly events: readonly TimelineMarker[];
+}
+
+const { events }: TimelineLegendProps = $props();
+
+const presentKinds = $derived.by(() => {
+  const present = new Set<TimelineMarkerKind>();
+  for (const event of events) {
+    present.add(event.kind);
   }
-
-  const { events }: TimelineLegendProps = $props();
-
-  const presentKinds = $derived.by(() => {
-    const present = new Set<TimelineMarkerKind>();
-    for (const event of events) {
-      present.add(event.kind);
-    }
-    return KIND_ORDER.filter((kind) => present.has(kind));
-  });
+  return KIND_ORDER.filter((kind) => present.has(kind));
+});
 </script>
 
 {#if presentKinds.length > 0}

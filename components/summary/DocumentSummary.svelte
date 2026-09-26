@@ -82,10 +82,6 @@
 
 <script lang="ts">
   import { IconChart } from "@/components/common/icons";
-  import DayAxis, { type DayTick, labelTransform } from "./DayAxis.svelte";
-  import LegendSwatch from "./LegendSwatch.svelte";
-  import YAxis, { Y_AXIS_W, type YTick } from "./YAxis.svelte";
-
   import {
     formatCompactCount,
     formatDayLabel,
@@ -109,6 +105,9 @@
     DocumentSummary as DocumentSummaryData,
     SummaryPoint,
   } from "@/lib/core/summary/derive";
+  import DayAxis, { type DayTick, labelTransform } from "./DayAxis.svelte";
+  import LegendSwatch from "./LegendSwatch.svelte";
+  import YAxis, { Y_AXIS_W, type YTick } from "./YAxis.svelte";
 
   export interface DocumentSummaryProps {
     readonly summary: DocumentSummaryData;

@@ -23,8 +23,8 @@
   import type { RevisionStore } from "@/lib/core/store";
   import { createIdbStore } from "@/lib/platform/db";
   import MessageCard from "./MessageCard.svelte";
-  import { parseUserIndex } from "./replay-app";
   import ReplaySurface from "./ReplaySurface.svelte";
+  import { parseUserIndex } from "./replay-app";
 
   export interface ReplayAppProps {
     /** Bulk store (page realm). Injected in tests; defaults to the idb backend. */

@@ -1,42 +1,42 @@
 <script lang="ts" module>
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // ProgressView (plan Phase 5 Step 5e / Seam C+F). Counts/percent only — content-
-  // free by construction. Three phases:
-  //   • "discovering" — indeterminate, only while a first checkpoint is pending.
-  //   • "fetching"    — determinate bar from `pct` (role=progressbar + aria values).
-  //   • "error"       — stall/timeout/terminal: the CLASSIFIED RetrievalError copy
-  //                     (never String(error), §13.7) + Retry/Cancel.
-  // It MUST NOT render an infinite "discovering": the App transitions a never-
-  // completing retrieval to the "error" phase (Seam F1) and passes it here.
-  //
-  // Tone (redesign): reassuring, not alarming. The error state leads with a calm
-  // alert mark and a plain title/explanation/next-step, never a red shout.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// ProgressView (plan Phase 5 Step 5e / Seam C+F). Counts/percent only — content-
+// free by construction. Three phases:
+//   • "discovering" — indeterminate, only while a first checkpoint is pending.
+//   • "fetching"    — determinate bar from `pct` (role=progressbar + aria values).
+//   • "error"       — stall/timeout/terminal: the CLASSIFIED RetrievalError copy
+//                     (never String(error), §13.7) + Retry/Cancel.
+// It MUST NOT render an infinite "discovering": the App transitions a never-
+// completing retrieval to the "error" phase (Seam F1) and passes it here.
+//
+// Tone (redesign): reassuring, not alarming. The error state leads with a calm
+// alert mark and a plain title/explanation/next-step, never a red shout.
 
-  import type { RetrievalErrorCategory } from "@/lib/core/retrieval/errors";
+import type { RetrievalErrorCategory } from "@/lib/core/retrieval/errors";
 
-  export type ProgressPhase = "discovering" | "fetching" | "error";
+export type ProgressPhase = "discovering" | "fetching" | "error";
 
-  export interface ProgressViewProps {
-    readonly phase: ProgressPhase;
-    readonly pct: number;
-    readonly errorCategory: RetrievalErrorCategory | null;
-    readonly onRetry: () => void;
-    readonly onCancel: () => void;
-  }
+export interface ProgressViewProps {
+  readonly phase: ProgressPhase;
+  readonly pct: number;
+  readonly errorCategory: RetrievalErrorCategory | null;
+  readonly onRetry: () => void;
+  readonly onCancel: () => void;
+}
 </script>
 
 <script lang="ts">
-  import { IconAlert, IconHistory } from "@/components/common/icons";
-  import { errorTitle, percentLabel, strings } from "@/lib/core/i18n/strings";
-  import { retrievalError } from "@/lib/core/retrieval/errors";
+import { IconAlert, IconHistory } from "@/components/common/icons";
+import { errorTitle, percentLabel, strings } from "@/lib/core/i18n/strings";
+import { retrievalError } from "@/lib/core/retrieval/errors";
 
-  const { phase, pct, errorCategory, onRetry, onCancel }: ProgressViewProps = $props();
+const { phase, pct, errorCategory, onRetry, onCancel }: ProgressViewProps = $props();
 
-  // The error branch keys on `phase` (not the category) so an error state always
-  // renders; a missing category falls back to a generic classified error rather
-  // than rendering nothing.
-  const category = $derived<RetrievalErrorCategory>(errorCategory ?? "reconstruction-failure");
+// The error branch keys on `phase` (not the category) so an error state always
+// renders; a missing category falls back to a generic classified error rather
+// than rendering nothing.
+const category = $derived<RetrievalErrorCategory>(errorCategory ?? "reconstruction-failure");
 </script>
 
 <div class="dr-card flex flex-col gap-3.5">

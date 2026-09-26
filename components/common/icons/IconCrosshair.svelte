@@ -1,12 +1,12 @@
 <script lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // Crosshair — the "follow / lock onto the active edit" mark (transport toggle).
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// Crosshair — the "follow / lock onto the active edit" mark (transport toggle).
 
-  import Icon from "./Icon.svelte";
-  import type { IconProps } from "./types";
+import Icon from "./Icon.svelte";
+import type { IconProps } from "./types";
 
-  let { size, class: klass, stroke }: IconProps = $props();
+let { size, class: klass, stroke }: IconProps = $props();
 </script>
 
 <Icon {size} class={klass} {stroke}>

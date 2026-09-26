@@ -1,31 +1,31 @@
 <script lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // SlideCanvas — paints ONE reconstructed slide (a pure `RenderedSlide` from
-  // `lib/core/slides/reconstruction/render.ts`) as an absolutely-positioned shape canvas. The
-  // "structural layout + parity" compromise (the Slides analogue of GridViewport):
-  // each shape sits at its transform-derived fractional box on a correctly-shaped
-  // canvas, text is drawn at role-based sizes, and media becomes a labeled
-  // placeholder — never image bytes, never a network fetch (local-first; §4).
-  //
-  // Scale-independence: the canvas is a CSS container (`container-type: size`), so
-  // box positions are `%` of the canvas and font sizes are `cqh` (a fraction of the
-  // canvas height). The SAME component therefore renders both the hero viewport and
-  // the tiny navigator thumbnails, staying crisp at any size. Content-free chrome;
-  // only the reconstructed slide text (metadata the user is replaying) is shown.
-  //
-  // System fonts + DESIGN tokens only. Svelte idioms: `{#each}`/`{#if}` with runes.
-  // The per-shape markup lives in the sibling `ShapeView.svelte` (one component per
-  // file), which was a module-local component in the Solid original.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// SlideCanvas — paints ONE reconstructed slide (a pure `RenderedSlide` from
+// `lib/core/slides/reconstruction/render.ts`) as an absolutely-positioned shape canvas. The
+// "structural layout + parity" compromise (the Slides analogue of GridViewport):
+// each shape sits at its transform-derived fractional box on a correctly-shaped
+// canvas, text is drawn at role-based sizes, and media becomes a labeled
+// placeholder — never image bytes, never a network fetch (local-first; §4).
+//
+// Scale-independence: the canvas is a CSS container (`container-type: size`), so
+// box positions are `%` of the canvas and font sizes are `cqh` (a fraction of the
+// canvas height). The SAME component therefore renders both the hero viewport and
+// the tiny navigator thumbnails, staying crisp at any size. Content-free chrome;
+// only the reconstructed slide text (metadata the user is replaying) is shown.
+//
+// System fonts + DESIGN tokens only. Svelte idioms: `{#each}`/`{#if}` with runes.
+// The per-shape markup lives in the sibling `ShapeView.svelte` (one component per
+// file), which was a module-local component in the Solid original.
 
-  import ShapeView from "@/components/slides/ShapeView.svelte";
-  import type { RenderedSlide } from "@/lib/core/slides/reconstruction/render";
+import ShapeView from "@/components/slides/ShapeView.svelte";
+import type { RenderedSlide } from "@/lib/core/slides/reconstruction/render";
 
-  interface SlideCanvasProps {
-    readonly slide: RenderedSlide;
-  }
+interface SlideCanvasProps {
+  readonly slide: RenderedSlide;
+}
 
-  const { slide }: SlideCanvasProps = $props();
+const { slide }: SlideCanvasProps = $props();
 </script>
 
 <div

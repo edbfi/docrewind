@@ -1,62 +1,57 @@
 <script lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // PopupApp — the toolbar action surface. Pinning the extension and clicking its
-  // icon opens THIS popup (WXT auto-wires `action.default_popup` from the
-  // `entrypoints/popup/` entrypoint; `action` needs no permission, so the privacy
-  // invariant — permissions:["storage"], host:docs.google.com — is untouched).
-  //
-  // A friendly, fixed-width little app (360px) in the warm Apple-Settings register:
-  // the shared theme applier, BrandMark chip, and `btn-*`/`dr-*` tokens. Two views
-  // live in one popup — an overview (what DocRewind is, a calm privacy reassurance,
-  // and quick actions) and an About ledger (version/author/license/source as a
-  // grouped iOS row list) — toggled in place so the popup never needs a second page.
-  // "Options" hands off to the real options page via `runtime.openOptionsPage()`
-  // (no `tabs` permission required).
-  //
-  // Svelte idioms: `class` (never `className`). `ExternalLink` and `DetailRow` are
-  // sibling components (one component per file) taking a `children` snippet.
-  //
-  // NOTE ON BRANCH ORDER: this was Solid's
-  // `<Show when={view() === "about"} fallback={…overview…}>…about…</Show>`, where the
-  // FALLBACK is the else branch. As `{#if}`/`{:else}` the two branches swap position
-  // in the source: About comes first, the overview second. The rendered condition is
-  // unchanged — `view === "about"` still selects the About ledger.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// PopupApp — the toolbar action surface. Pinning the extension and clicking its
+// icon opens THIS popup (WXT auto-wires `action.default_popup` from the
+// `entrypoints/popup/` entrypoint; `action` needs no permission, so the privacy
+// invariant — permissions:["storage"], host:docs.google.com — is untouched).
+//
+// A friendly, fixed-width little app (360px) in the warm Apple-Settings register:
+// the shared theme applier, BrandMark chip, and `btn-*`/`dr-*` tokens. Two views
+// live in one popup — an overview (what DocRewind is, a calm privacy reassurance,
+// and quick actions) and an About ledger (version/author/license/source as a
+// grouped iOS row list) — toggled in place so the popup never needs a second page.
+// "Options" hands off to the real options page via `runtime.openOptionsPage()`
+// (no `tabs` permission required).
+//
+// Svelte idioms: `class` (never `className`). `ExternalLink` and `DetailRow` are
+// sibling components (one component per file) taking a `children` snippet.
+//
+// NOTE ON BRANCH ORDER: this was Solid's
+// `<Show when={view() === "about"} fallback={…overview…}>…about…</Show>`, where the
+// FALLBACK is the else branch. As `{#if}`/`{:else}` the two branches swap position
+// in the source: About comes first, the overview second. The rendered condition is
+// unchanged — `view === "about"` still selects the About ledger.
 
-  import { browser } from "wxt/browser";
-  import BrandMark from "@/components/common/BrandMark.svelte";
-  import {
-    IconArrowLeft,
-    IconInfo,
-    IconSettings,
-    IconShield,
-  } from "@/components/common/icons";
-  import ThemeControl from "@/components/common/ThemeControl.svelte";
-  import { useThemeSync } from "@/components/common/theme-sync.svelte";
-  import DetailRow from "@/components/popup/DetailRow.svelte";
-  import ExternalLink from "@/components/popup/ExternalLink.svelte";
-  import { strings } from "@/lib/core/i18n/strings";
+import { browser } from "wxt/browser";
+import BrandMark from "@/components/common/BrandMark.svelte";
+import { IconArrowLeft, IconInfo, IconSettings, IconShield } from "@/components/common/icons";
+import ThemeControl from "@/components/common/ThemeControl.svelte";
+import { useThemeSync } from "@/components/common/theme-sync.svelte";
+import DetailRow from "@/components/popup/DetailRow.svelte";
+import ExternalLink from "@/components/popup/ExternalLink.svelte";
+import { strings } from "@/lib/core/i18n/strings";
 
-  const popup = strings.popup;
+const popup = strings.popup;
 
-  /** Read the manifest version, falling back to an em dash if unavailable. */
-  function appVersion(): string {
-    try {
-      return browser.runtime.getManifest().version ?? "—";
-    } catch {
-      return "—";
-    }
+/** Read the manifest version, falling back to an em dash if unavailable. */
+function appVersion(): string {
+  try {
+    return browser.runtime.getManifest().version ?? "—";
+  } catch {
+    return "—";
   }
+}
 
-  useThemeSync();
-  let view = $state<"main" | "about">("main");
-  const version = appVersion();
+useThemeSync();
+let view = $state<"main" | "about">("main");
+const version = appVersion();
 
-  function openOptions(): void {
-    // Opens the extension's own options page in a tab; the popup auto-dismisses
-    // as focus moves to it. No `tabs` permission needed for own-page navigation.
-    void browser.runtime.openOptionsPage();
-  }
+function openOptions(): void {
+  // Opens the extension's own options page in a tab; the popup auto-dismisses
+  // as focus moves to it. No `tabs` permission needed for own-page navigation.
+  void browser.runtime.openOptionsPage();
+}
 </script>
 
 <div class="dr-surface w-90 max-w-full">
@@ -68,8 +63,8 @@
           class="btn-ghost px-2.5"
           aria-label={popup.backHint}
           onclick={() => {
-            view = "main";
-          }}
+  view = "main";
+}}
         >
           <IconArrowLeft size={18} />
           {popup.backButton}
@@ -138,8 +133,8 @@
           type="button"
           class="btn-secondary btn-block"
           onclick={() => {
-            view = "about";
-          }}
+  view = "about";
+}}
         >
           <IconInfo size={18} />
           {popup.aboutButton}
