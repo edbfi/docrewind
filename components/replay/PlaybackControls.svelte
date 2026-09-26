@@ -1,41 +1,41 @@
 <script module lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // PlaybackControls (plan Phase 5 Step 5b). Play/pause, restart, and a fixed speed
-  // selector. Fully keyboard-operable: every control is a real <button> (Space/Enter
-  // activate natively, so Space toggles play/pause when focused) with an accessible
-  // name and a visible focus ring. Play/pause pairs an icon WITH text, never color
-  // alone (§9.11). Speed is a friendly segmented control (the selected multiplier is
-  // a raised pill — clearly "the one"). The speed set is a fixed-length value list,
-  // so it renders through a KEYLESS `{#each}` (Solid's `<Index>`).
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// PlaybackControls (plan Phase 5 Step 5b). Play/pause, restart, and a fixed speed
+// selector. Fully keyboard-operable: every control is a real <button> (Space/Enter
+// activate natively, so Space toggles play/pause when focused) with an accessible
+// name and a visible focus ring. Play/pause pairs an icon WITH text, never color
+// alone (§9.11). Speed is a friendly segmented control (the selected multiplier is
+// a raised pill — clearly "the one"). The speed set is a fixed-length value list,
+// so it renders through a KEYLESS `{#each}` (Solid's `<Index>`).
 
-  /** The fixed playback-speed multipliers. */
-  export const SPEEDS = [0.5, 1, 2, 4] as const;
+/** The fixed playback-speed multipliers. */
+export const SPEEDS = [0.5, 1, 2, 4] as const;
 </script>
 
 <script lang="ts">
-  import { IconCrosshair, IconPause, IconPlay, IconRestart } from "@/components/common/icons";
-  import { speedLabel, strings } from "@/lib/core/i18n/strings";
+import { IconCrosshair, IconPause, IconPlay, IconRestart } from "@/components/common/icons";
+import { speedLabel, strings } from "@/lib/core/i18n/strings";
 
-  export interface PlaybackControlsProps {
-    readonly playing: boolean;
-    readonly speed: number;
-    readonly onPlayPause: () => void;
-    readonly onRestart: () => void;
-    readonly onSpeed: (speed: number) => void;
-    readonly follow: boolean;
-    readonly onFollowChange: (follow: boolean) => void;
-  }
+export interface PlaybackControlsProps {
+  readonly playing: boolean;
+  readonly speed: number;
+  readonly onPlayPause: () => void;
+  readonly onRestart: () => void;
+  readonly onSpeed: (speed: number) => void;
+  readonly follow: boolean;
+  readonly onFollowChange: (follow: boolean) => void;
+}
 
-  const {
-    playing,
-    speed,
-    onPlayPause,
-    onRestart,
-    onSpeed,
-    follow,
-    onFollowChange,
-  }: PlaybackControlsProps = $props();
+const {
+  playing,
+  speed,
+  onPlayPause,
+  onRestart,
+  onSpeed,
+  follow,
+  onFollowChange,
+}: PlaybackControlsProps = $props();
 </script>
 
 <div class="flex flex-wrap items-center gap-3">
@@ -71,8 +71,8 @@
   <button
     type="button"
     class={follow
-      ? "btn-base bg-brand-soft text-brand-text ring-1 ring-brand-ring"
-      : "btn-base bg-surface text-ink ring-1 ring-hairline-strong hover:bg-hover"}
+  ? "btn-base bg-brand-soft text-brand-text ring-1 ring-brand-ring"
+  : "btn-base bg-surface text-ink ring-1 ring-hairline-strong hover:bg-hover"}
     aria-pressed={follow}
     aria-label={strings.controls.followCaret}
     onclick={() => onFollowChange(!follow)}

@@ -460,16 +460,16 @@ The `@wxt-dev/unocss` module wires the UnoCSS Vite plugin into WXT and reads thi
 
 - **Biome** owns formatting + linting of `.ts`/`.js`/`.json`/`.css` and import organization.
 - **svelte-check** owns type checking and Svelte-specific diagnostics for `.svelte` and `.svelte.ts` — this is mandatory and is not something Biome does.
-- For `.svelte` *formatting*, either enable Biome's experimental Svelte support (via `html.experimentalFullHtmlSupportEnabled` plus an `overrides` entry for `.svelte`), or, if you need stable template formatting today, add `prettier` + `prettier-plugin-svelte` scoped to `.svelte` files only. That plugin's single job is reliable formatting of Svelte template markup (`{#if}`, `{#each}`, `{#snippet}`, attribute wrapping) that Biome's experimental formatter does not yet guarantee. Do not point both formatters at the same files.
+- For `.svelte` *formatting*, either enable Biome's experimental Svelte support (via `html.experimentalFullSupportEnabled: true` and `html.formatter.enabled: true`), or, if you need stable template formatting today, add `prettier` + `prettier-plugin-svelte` scoped to `.svelte` files only. That plugin's single job is reliable formatting of Svelte template markup (`{#if}`, `{#each}`, `{#snippet}`, attribute wrapping) that Biome's experimental formatter does not yet guarantee. Do not point both formatters at the same files.
 
 ```jsonc
 // biome.json
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.12/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": { "ignoreUnknown": true, "includes": ["**", "!**/.wxt/**", "!**/.output/**"] },
+  "files": { "ignoreUnknown": true, "includes": ["**", "!!**/.wxt", "!!**/.output"] },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2 },
-  "linter": { "enabled": true, "rules": { "recommended": true } },
+  "linter": { "enabled": true, "rules": { "preset": "recommended" } },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "javascript": { "formatter": { "quoteStyle": "single" } }
 }
@@ -499,6 +499,8 @@ TypeScript config extends WXT's generated base (WXT emits `.wxt/tsconfig.json` a
   }
 }
 ```
+
+This repository enables the experimental formatter. Biome 2.5.14 corrupts some `{@const}` declarations by adding parentheses; the exact affected components have formatter-only overrides in `biome.json`. Linting and import organization stay enabled. Validate a new Biome release with `bun run compile` before removing those overrides.
 
 Commands: `bunx biome check .` (lint + format + import-organize, add `--write` to fix), `bun run check` (svelte-check), `bun run build` / `bun run zip`. In CI use `biome ci .` for non-mutating, reporter-friendly output. Pin TypeScript to the 6.0 line: svelte-check's stable path uses the TypeScript 6.0 programmatic API; TS 7.0 is only reachable behind svelte-check's experimental `--tsgo` flag and is not the default for `.svelte`.
 

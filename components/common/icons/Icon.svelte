@@ -1,23 +1,23 @@
 <script module lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // Shared SVG frame for the DocRewind icon set — see `./index.ts` for the
-  // set-wide provenance and style contract. The prop contract lives in `./types.ts`
-  // and is re-exported here so every icon can take it from the frame it renders
-  // through.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// Shared SVG frame for the DocRewind icon set — see `./index.ts` for the
+// set-wide provenance and style contract. The prop contract lives in `./types.ts`
+// and is re-exported here so every icon can take it from the frame it renders
+// through.
 
-  import type { IconProps } from "./types";
+import type { IconProps } from "./types";
 
-  export type { IconProps };
+export type { IconProps };
 </script>
 
 <script lang="ts">
-  import type { Snippet } from "svelte";
+import type { Snippet } from "svelte";
 
-  type Internal = IconProps & { readonly children: Snippet; readonly filled?: boolean };
+type Internal = IconProps & { readonly children: Snippet; readonly filled?: boolean };
 
-  /** Shared SVG frame. `filled` swaps stroke geometry for solid fills (play/pause). */
-  let { size, class: klass, stroke, children, filled }: Internal = $props();
+/** Shared SVG frame. `filled` swaps stroke geometry for solid fills (play/pause). */
+let { size, class: klass, stroke, children, filled }: Internal = $props();
 </script>
 
 <svg

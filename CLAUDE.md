@@ -108,7 +108,12 @@ ignore a whole gated dir (the disjointness guard fails CI).
   `cssInjectionMode: "ui"` and `isolateEvents` (keydown/keyup/click/wheel), so UI code must not rely on those events reaching the host page.
 - Color: use the semantic tokens from `uno.config.ts` (`bg-canvas`, `text-ink`, `bg-brand`, ...), not `dark:`
   color variants. The CSS variables switch under `.dark`, which `components/common/theme-sync.svelte.ts` toggles.
-- Biome ignores `**/*.svelte`, and no other tool formats `.svelte`. Match the surrounding style by hand; `bun run compile` still type-checks them.
+- Biome uses experimental full Svelte support for formatting, linting and import organization.
+  Exact-path formatter exceptions protect components containing `{@const}`: Biome 2.5.14
+  adds invalid parentheses around those declarations. Keep these components formatted by hand
+  until a newer Biome release passes `bun run compile`; linting and assists remain enabled.
+- `ReplaySurface.svelte` keeps a narrow `noNoninteractiveTabindex` exception because its
+  `role="tabpanel"` regions intentionally support keyboard focus.
 - Hooks: `bun run hooks:install` (prek) enforces Conventional Commits and `no-commit-to-branch main`, so do the work on a branch.
 
 ## Reference

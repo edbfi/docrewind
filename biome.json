@@ -1,19 +1,23 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
+    "ignoreUnknown": true,
     "includes": [
       "**",
-      "!**/.output",
+      "!!**/.output",
       "!**/.wxt",
-      "!**/coverage",
-      "!**/dist",
-      "!**/test-results",
-      "!**/playwright-report",
-      "!**/.omc",
-      "!**/.omx",
-      "!public/icon/**/*.svg",
-      "!**/*.svelte"
+      "!!**/coverage",
+      "!!**/dist",
+      "!!**/test-results",
+      "!!**/playwright-report",
+      "!!**/.omc",
+      "!!**/.omx",
+      "!public/icon/**/*.svg"
     ]
   },
   "formatter": {
@@ -22,16 +26,72 @@
     "indentWidth": 2,
     "lineWidth": 100
   },
-  "assist": { "enabled": true, "actions": { "source": { "preset": "recommended" } } },
   "linter": {
     "enabled": true,
     "rules": {
       "preset": "recommended",
-      "suspicious": { "noExplicitAny": "error" },
-      "complexity": { "noForEach": "off" }
+      "suspicious": {
+        "noExplicitAny": "error"
+      },
+      "complexity": {
+        "noForEach": "off"
+      }
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "preset": "recommended"
+      }
     }
   },
   "javascript": {
-    "formatter": { "quoteStyle": "double", "semicolons": "always", "trailingCommas": "all" }
-  }
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "html": {
+    "experimentalFullSupportEnabled": true,
+    "formatter": {
+      "enabled": true
+    }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "components/common/PrivacyBanner.svelte",
+        "components/options/CacheControls.svelte",
+        "components/options/OptionsApp.svelte",
+        "components/replay/DocumentViewport.svelte",
+        "components/replay/SummaryInsights.svelte",
+        "components/replay/Timeline.svelte",
+        "components/sheets/GridViewport.svelte",
+        "components/summary/DocumentSummary.svelte",
+        "entrypoints/replay/App.svelte",
+        "entrypoints/replay/MessageCard.svelte",
+        "entrypoints/summary/App.svelte",
+        "entrypoints/summary/StatusCard.svelte",
+        "entrypoints/summary/SummarySurface.svelte"
+      ],
+      "formatter": {
+        "enabled": false
+      }
+    },
+    {
+      "includes": ["entrypoints/replay/ReplaySurface.svelte"],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveTabindex": "off"
+          }
+        }
+      }
+    }
+  ]
 }
