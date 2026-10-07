@@ -96,12 +96,12 @@ const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
         aria-label={slideOf(index + 1, slides.length)}
         tabindex={index === activeIndex ? 0 : -1}
         class={[
-  "group relative shrink-0 rounded-lg outline-none ring-1 ring-hairline transition focus-visible:ring-2 focus-visible:ring-accent",
-  {
-    "ring-2 ring-accent": index === activeIndex,
-    "opacity-70 hover:opacity-100": index !== activeIndex,
-  },
-]}
+          "group relative shrink-0 rounded-lg outline-none ring-1 ring-hairline transition focus-visible:ring-2 focus-visible:ring-accent",
+          {
+            "ring-2 ring-accent": index === activeIndex,
+            "opacity-70 hover:opacity-100": index !== activeIndex,
+          },
+        ]}
         onclick={() => onSelect(index)}
       >
         <div class="w-36 overflow-hidden rounded-lg bg-surface">

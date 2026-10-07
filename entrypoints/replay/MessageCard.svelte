@@ -1,25 +1,25 @@
 <script lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // A small centered card for missing-doc / load-failure states. Calm, not alarming:
-  // a brand row for orientation, the privacy reassurance, then a plain-language error
-  // with one clear recovery action.
-  //
-  // Its own file because Svelte is one component per file.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// A small centered card for missing-doc / load-failure states. Calm, not alarming:
+// a brand row for orientation, the privacy reassurance, then a plain-language error
+// with one clear recovery action.
+//
+// Its own file because Svelte is one component per file.
 
-  import BrandMark from "@/components/common/BrandMark.svelte";
-  import { IconAlert } from "@/components/common/icons";
-  import PrivacyBanner from "@/components/common/PrivacyBanner.svelte";
-  import { strings } from "@/lib/core/i18n/strings";
+import BrandMark from "@/components/common/BrandMark.svelte";
+import { IconAlert } from "@/components/common/icons";
+import PrivacyBanner from "@/components/common/PrivacyBanner.svelte";
+import { strings } from "@/lib/core/i18n/strings";
 
-  export interface MessageCardProps {
-    readonly title: string;
-    readonly body: string;
-    readonly actionLabel?: string | undefined;
-    readonly onAction?: (() => void) | undefined;
-  }
+export interface MessageCardProps {
+  readonly title: string;
+  readonly body: string;
+  readonly actionLabel?: string | undefined;
+  readonly onAction?: (() => void) | undefined;
+}
 
-  const { title, body, actionLabel, onAction }: MessageCardProps = $props();
+const { title, body, actionLabel, onAction }: MessageCardProps = $props();
 </script>
 
 <main class="mx-auto flex max-w-prose flex-col gap-4 p-6 sm:p-8">

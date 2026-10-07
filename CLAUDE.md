@@ -109,9 +109,10 @@ ignore a whole gated dir (the disjointness guard fails CI).
 - Color: use the semantic tokens from `uno.config.ts` (`bg-canvas`, `text-ink`, `bg-brand`, ...), not `dark:`
   color variants. The CSS variables switch under `.dark`, which `components/common/theme-sync.svelte.ts` toggles.
 - Biome uses experimental full Svelte support for formatting, linting and import organization.
-  Exact-path formatter exceptions protect components containing `{@const}`: Biome 2.5.14
-  adds invalid parentheses around those declarations. Keep these components formatted by hand
-  until a newer Biome release passes `bun run compile`; linting and assists remain enabled.
+  `DocumentViewport.svelte` and `SummaryInsights.svelte` keep exact-path formatter exceptions:
+  their inline runs are deliberately written without whitespace between tags and expressions,
+  and the formatter's line breaks would render extra spaces. Keep them formatted by hand;
+  linting and assists remain enabled.
 - `ReplaySurface.svelte` keeps a narrow `noNoninteractiveTabindex` exception because its
   `role="tabpanel"` regions intentionally support keyboard focus.
 - Hooks: `bun run hooks:install` (prek) enforces Conventional Commits and `no-commit-to-branch main`, so do the work on a branch.

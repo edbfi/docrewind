@@ -1,58 +1,58 @@
 <script lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // CacheControls (plan Phase 5 Step 8 / PRD §9.8). Clear cached data for the
-  // current document (when the options page was opened with a `?doc=`) or for every
-  // document, and show approximate usage. Destructive actions confirm first. Never
-  // displays raw data — only coarse byte figures.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// CacheControls (plan Phase 5 Step 8 / PRD §9.8). Clear cached data for the
+// current document (when the options page was opened with a `?doc=`) or for every
+// document, and show approximate usage. Destructive actions confirm first. Never
+// displays raw data — only coarse byte figures.
 
-  import { onMount } from "svelte";
-  import { IconInfo, IconTrash } from "@/components/common/icons";
-  import type { DocId } from "@/lib/core/domain/model";
-  import { strings } from "@/lib/core/i18n/strings";
-  import type { RevisionStore, UsageEstimate } from "@/lib/core/store";
+import { onMount } from "svelte";
+import { IconInfo, IconTrash } from "@/components/common/icons";
+import type { DocId } from "@/lib/core/domain/model";
+import { strings } from "@/lib/core/i18n/strings";
+import type { RevisionStore, UsageEstimate } from "@/lib/core/store";
 
-  export interface CacheControlsProps {
-    readonly store: RevisionStore;
-    /** Present when the page was opened in the context of one document. */
-    readonly docId: DocId | null;
-    readonly onClearDocument: (docId: DocId) => Promise<void>;
-    readonly onClearAll: () => Promise<void>;
+export interface CacheControlsProps {
+  readonly store: RevisionStore;
+  /** Present when the page was opened in the context of one document. */
+  readonly docId: DocId | null;
+  readonly onClearDocument: (docId: DocId) => Promise<void>;
+  readonly onClearAll: () => Promise<void>;
+}
+
+let { store, docId, onClearDocument, onClearAll }: CacheControlsProps = $props();
+
+function formatMib(bytes: number): string {
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+// The old `createResource` read the estimate once and exposed a `refetch`; here the
+// loader is a named async function the clear handlers re-invoke after a clear lands.
+let usage = $state<UsageEstimate | undefined>(undefined);
+
+async function loadUsage(): Promise<void> {
+  usage = await store.estimateUsage();
+}
+
+onMount(() => {
+  void loadUsage();
+});
+
+async function clearDocument(id: DocId): Promise<void> {
+  if (!window.confirm(strings.options.clearConfirm)) {
+    return;
   }
+  await onClearDocument(id);
+  void loadUsage();
+}
 
-  let { store, docId, onClearDocument, onClearAll }: CacheControlsProps = $props();
-
-  function formatMib(bytes: number): string {
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+async function clearAll(): Promise<void> {
+  if (!window.confirm(strings.options.clearConfirm)) {
+    return;
   }
-
-  // The old `createResource` read the estimate once and exposed a `refetch`; here the
-  // loader is a named async function the clear handlers re-invoke after a clear lands.
-  let usage = $state<UsageEstimate | undefined>(undefined);
-
-  async function loadUsage(): Promise<void> {
-    usage = await store.estimateUsage();
-  }
-
-  onMount(() => {
-    void loadUsage();
-  });
-
-  async function clearDocument(id: DocId): Promise<void> {
-    if (!window.confirm(strings.options.clearConfirm)) {
-      return;
-    }
-    await onClearDocument(id);
-    void loadUsage();
-  }
-
-  async function clearAll(): Promise<void> {
-    if (!window.confirm(strings.options.clearConfirm)) {
-      return;
-    }
-    await onClearAll();
-    void loadUsage();
-  }
+  await onClearAll();
+  void loadUsage();
+}
 </script>
 
 <!--
@@ -66,9 +66,7 @@
     <div class="dr-rows">
       <div class="dr-row">
         <span class="dr-row-label">{strings.options.cacheHeading}</span>
-        <span class="dr-counter">
-          {formatMib(estimate.usage)} / {formatMib(estimate.quota)}
-        </span>
+        <span class="dr-counter"> {formatMib(estimate.usage)} / {formatMib(estimate.quota)} </span>
       </div>
     </div>
   {:else}

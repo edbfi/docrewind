@@ -1,81 +1,81 @@
 <script module lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // GridViewport — renders one reconstructed SheetGrid as an accessible, bounded
-  // table (plan P3 / §7). A spreadsheet can be 10k+ rows, so the ROW axis is
-  // VIRTUALIZED: only the visible row window (+ overscan) is in the DOM, with
-  // top/bottom spacer rows preserving the scrollbar geometry and a sticky
-  // `<thead>` + sticky row-number column — a large grid stays responsive (R7). The
-  // column axis is capped (most sheets are narrow; a runaway col count never
-  // explodes the DOM). Cell values/formulas go through the pure `render.ts`
-  // (formulas as text, numbers via the supported number-format patterns); numeric
-  // cells use mono/tabular figures.
-  //
-  // A calm, non-blocking fidelity-notice line (§9) appears above the grid when the
-  // model degraded any op — never a scary banner, never blocking the replay.
-  //
-  // Semantic `<table>` markup (accessible by construction). System fonts + DESIGN
-  // tokens only — no web font. Svelte idioms: `{#each}`/`{#if}` with runes.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// GridViewport — renders one reconstructed SheetGrid as an accessible, bounded
+// table (plan P3 / §7). A spreadsheet can be 10k+ rows, so the ROW axis is
+// VIRTUALIZED: only the visible row window (+ overscan) is in the DOM, with
+// top/bottom spacer rows preserving the scrollbar geometry and a sticky
+// `<thead>` + sticky row-number column — a large grid stays responsive (R7). The
+// column axis is capped (most sheets are narrow; a runaway col count never
+// explodes the DOM). Cell values/formulas go through the pure `render.ts`
+// (formulas as text, numbers via the supported number-format patterns); numeric
+// cells use mono/tabular figures.
+//
+// A calm, non-blocking fidelity-notice line (§9) appears above the grid when the
+// model degraded any op — never a scary banner, never blocking the replay.
+//
+// Semantic `<table>` markup (accessible by construction). System fonts + DESIGN
+// tokens only — no web font. Svelte idioms: `{#each}`/`{#if}` with runes.
 
-  const ROW_H = 28;
-  const COL_W = 112;
-  const ROW_HDR_W = 56;
-  const HEADER_H = 28;
-  const OVERSCAN = 6;
-  const VIEWPORT_H = 460;
-  const DEFAULT_VISIBLE_ROWS = 40;
-  const MIN_ROWS = 24;
-  const MIN_COLS = 12;
-  const MAX_ROWS = 50_000;
-  // Column render cap: most sheets are narrow; a runaway col count never explodes
-  // the DOM (the row axis carries the heavy virtualization).
-  const MAX_COLS = 64;
+const ROW_H = 28;
+const COL_W = 112;
+const ROW_HDR_W = 56;
+const HEADER_H = 28;
+const OVERSCAN = 6;
+const VIEWPORT_H = 460;
+const DEFAULT_VISIBLE_ROWS = 40;
+const MIN_ROWS = 24;
+const MIN_COLS = 12;
+const MAX_ROWS = 50_000;
+// Column render cap: most sheets are narrow; a runaway col count never explodes
+// the DOM (the row axis carries the heavy virtualization).
+const MAX_COLS = 64;
 
-  const GRIDLINE = "1px solid var(--dr-hairline)";
+const GRIDLINE = "1px solid var(--dr-hairline)";
 </script>
 
 <script lang="ts">
-  import { strings } from "@/lib/core/i18n/strings";
-  import type { SheetGrid } from "@/lib/core/sheets/reconstruction/model";
-  import {
-    columnLabel,
-    placeholderAt,
-    renderCellAt,
-    rowSegments,
-  } from "@/lib/core/sheets/reconstruction/render";
+import { strings } from "@/lib/core/i18n/strings";
+import type { SheetGrid } from "@/lib/core/sheets/reconstruction/model";
+import {
+  columnLabel,
+  placeholderAt,
+  renderCellAt,
+  rowSegments,
+} from "@/lib/core/sheets/reconstruction/render";
 
-  interface GridViewportProps {
-    readonly sheet: SheetGrid;
-    /** Render the §9 fidelity notice when the model carries any notice. */
-    readonly showFidelityNotice: boolean;
-  }
+interface GridViewportProps {
+  readonly sheet: SheetGrid;
+  /** Render the §9 fidelity notice when the model carries any notice. */
+  readonly showFidelityNotice: boolean;
+}
 
-  const { sheet, showFidelityNotice }: GridViewportProps = $props();
+const { sheet, showFidelityNotice }: GridViewportProps = $props();
 
-  let scrollTop = $state(0);
-  let viewportH = $state(VIEWPORT_H);
+let scrollTop = $state(0);
+let viewportH = $state(VIEWPORT_H);
 
-  const totalRows = $derived(Math.min(MAX_ROWS, Math.max(MIN_ROWS, sheet.rowCount)));
-  const totalCols = $derived(Math.min(MAX_COLS, Math.max(MIN_COLS, sheet.colCount)));
+const totalRows = $derived(Math.min(MAX_ROWS, Math.max(MIN_ROWS, sheet.rowCount)));
+const totalCols = $derived(Math.min(MAX_COLS, Math.max(MIN_COLS, sheet.colCount)));
 
-  const cols = $derived(Array.from({ length: totalCols }, (_v, i) => i));
+const cols = $derived(Array.from({ length: totalCols }, (_v, i) => i));
 
-  const rowWindow = $derived.by(() => {
-    const visible = Math.max(DEFAULT_VISIBLE_ROWS, Math.ceil(viewportH / ROW_H));
-    const start = Math.max(0, Math.floor(scrollTop / ROW_H) - OVERSCAN);
-    const end = Math.min(totalRows, start + visible + OVERSCAN * 2);
-    return { start, end };
-  });
-  const rows = $derived.by(() => {
-    const { start, end } = rowWindow;
-    return Array.from({ length: Math.max(0, end - start) }, (_v, i) => start + i);
-  });
+const rowWindow = $derived.by(() => {
+  const visible = Math.max(DEFAULT_VISIBLE_ROWS, Math.ceil(viewportH / ROW_H));
+  const start = Math.max(0, Math.floor(scrollTop / ROW_H) - OVERSCAN);
+  const end = Math.min(totalRows, start + visible + OVERSCAN * 2);
+  return { start, end };
+});
+const rows = $derived.by(() => {
+  const { start, end } = rowWindow;
+  return Array.from({ length: Math.max(0, end - start) }, (_v, i) => start + i);
+});
 
-  const onScroll = (event: Event): void => {
-    const el = event.currentTarget as HTMLElement;
-    scrollTop = el.scrollTop;
-    if (el.clientHeight > 0) viewportH = el.clientHeight;
-  };
+const onScroll = (event: Event): void => {
+  const el = event.currentTarget as HTMLElement;
+  scrollTop = el.scrollTop;
+  if (el.clientHeight > 0) viewportH = el.clientHeight;
+};
 </script>
 
 <div class="flex flex-col gap-2">

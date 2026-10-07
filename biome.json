@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.13/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -62,19 +62,8 @@
   "overrides": [
     {
       "includes": [
-        "components/common/PrivacyBanner.svelte",
-        "components/options/CacheControls.svelte",
-        "components/options/OptionsApp.svelte",
         "components/replay/DocumentViewport.svelte",
-        "components/replay/SummaryInsights.svelte",
-        "components/replay/Timeline.svelte",
-        "components/sheets/GridViewport.svelte",
-        "components/summary/DocumentSummary.svelte",
-        "entrypoints/replay/App.svelte",
-        "entrypoints/replay/MessageCard.svelte",
-        "entrypoints/summary/App.svelte",
-        "entrypoints/summary/StatusCard.svelte",
-        "entrypoints/summary/SummarySurface.svelte"
+        "components/replay/SummaryInsights.svelte"
       ],
       "formatter": {
         "enabled": false
@@ -82,9 +71,6 @@
     },
     {
       "includes": ["entrypoints/replay/ReplaySurface.svelte"],
-      "formatter": {
-        "enabled": false
-      },
       "linter": {
         "rules": {
           "a11y": {
