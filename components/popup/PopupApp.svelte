@@ -63,8 +63,8 @@ function openOptions(): void {
           class="btn-ghost px-2.5"
           aria-label={popup.backHint}
           onclick={() => {
-  view = "main";
-}}
+            view = "main";
+          }}
         >
           <IconArrowLeft size={18} />
           {popup.backButton}
@@ -133,8 +133,8 @@ function openOptions(): void {
           type="button"
           class="btn-secondary btn-block"
           onclick={() => {
-  view = "about";
-}}
+            view = "about";
+          }}
         >
           <IconInfo size={18} />
           {popup.aboutButton}

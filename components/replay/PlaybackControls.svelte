@@ -71,8 +71,8 @@ const {
   <button
     type="button"
     class={follow
-  ? "btn-base bg-brand-soft text-brand-text ring-1 ring-brand-ring"
-  : "btn-base bg-surface text-ink ring-1 ring-hairline-strong hover:bg-hover"}
+      ? "btn-base bg-brand-soft text-brand-text ring-1 ring-brand-ring"
+      : "btn-base bg-surface text-ink ring-1 ring-hairline-strong hover:bg-hover"}
     aria-pressed={follow}
     aria-label={strings.controls.followCaret}
     onclick={() => onFollowChange(!follow)}

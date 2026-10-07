@@ -1,260 +1,261 @@
 <script lang="ts">
-  // SPDX-License-Identifier: AGPL-3.0-or-later
-  //
-  // Timeline scrubber (plan Phase 5 Step 5c) — the surface's signature element: a
-  // writing-activity stratum with a vertical playhead caret. An ARIA slider with
-  // full keyboard scrub (Arrow ±1, Home/End to bounds).
-  //
-  // Positioning note (scale-safety): the slider domain is APPLIED-COUNT [0, max]
-  // — the same scale as `currentIndex` (which drives `modelAtRevisionIndex`). Event
-  // markers therefore carry a precomputed applied-count `index`, mapped UPSTREAM in
-  // the App from each event's wire `RevisionId` anchor (the App holds the revisions
-  // array). The leaf never sees a `RevisionId`, so it cannot mix the two scales.
-  //
-  // Density note (collision stacking): seals are ~16px and many bursts anchor a
-  // handful of events within a few revisions, so at the page's real width they
-  // would pile into an unreadable clump. Marks whose pixel positions would collide
-  // fuse into one STACKED SEAL bearing a count (see `clusterMarkers`); the burst
-  // becomes legible signal instead of a pile. Stacking is measurement-driven — with
-  // no measured width (jsdom / first paint) every mark renders on its own.
-  //
-  // The pure half of this file — clustering, tone classes, kind ordering, the seal's
-  // accessible name and the two edge constants — lives in `./timeline-markers.ts` so
-  // it stays unit-testable without the Svelte compiler; the kind→icon switch, which
-  // returns markup, lives in `./MarkerIcon.svelte`.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+//
+// Timeline scrubber (plan Phase 5 Step 5c) — the surface's signature element: a
+// writing-activity stratum with a vertical playhead caret. An ARIA slider with
+// full keyboard scrub (Arrow ±1, Home/End to bounds).
+//
+// Positioning note (scale-safety): the slider domain is APPLIED-COUNT [0, max]
+// — the same scale as `currentIndex` (which drives `modelAtRevisionIndex`). Event
+// markers therefore carry a precomputed applied-count `index`, mapped UPSTREAM in
+// the App from each event's wire `RevisionId` anchor (the App holds the revisions
+// array). The leaf never sees a `RevisionId`, so it cannot mix the two scales.
+//
+// Density note (collision stacking): seals are ~16px and many bursts anchor a
+// handful of events within a few revisions, so at the page's real width they
+// would pile into an unreadable clump. Marks whose pixel positions would collide
+// fuse into one STACKED SEAL bearing a count (see `clusterMarkers`); the burst
+// becomes legible signal instead of a pile. Stacking is measurement-driven — with
+// no measured width (jsdom / first paint) every mark renders on its own.
+//
+// The pure half of this file — clustering, tone classes, kind ordering, the seal's
+// accessible name and the two edge constants — lives in `./timeline-markers.ts` so
+// it stays unit-testable without the Svelte compiler; the kind→icon switch, which
+// returns markup, lives in `./MarkerIcon.svelte`.
 
-  import { IconClose } from "@/components/common/icons";
-  import { revisionOf, strings } from "@/lib/core/i18n/strings";
-  import MarkerIcon from "./MarkerIcon.svelte";
-  import {
-    CLUSTER_KIND_LABEL,
-    clusterAriaLabel,
-    clusterBreakdownRows,
-    clusterMarkers,
-    clusterToneClass,
-    EDGE_INSET_PX,
-    markerToneClass,
-    PLAYHEAD_REST_PX,
-    summarizeCluster,
-    type TimelineMarker,
-  } from "./timeline-markers";
+import { IconClose } from "@/components/common/icons";
+import { revisionOf, strings } from "@/lib/core/i18n/strings";
+import MarkerIcon from "./MarkerIcon.svelte";
+import {
+  CLUSTER_KIND_LABEL,
+  clusterAriaLabel,
+  clusterBreakdownRows,
+  clusterMarkers,
+  clusterToneClass,
+  EDGE_INSET_PX,
+  markerToneClass,
+  PLAYHEAD_REST_PX,
+  summarizeCluster,
+  type TimelineMarker,
+} from "./timeline-markers";
 
-  export interface TimelineProps {
-    readonly currentIndex: number;
-    readonly max: number;
-    readonly events: readonly TimelineMarker[];
-    readonly onScrub: (index: number) => void;
+export interface TimelineProps {
+  readonly currentIndex: number;
+  readonly max: number;
+  readonly events: readonly TimelineMarker[];
+  readonly onScrub: (index: number) => void;
+}
+
+const { currentIndex, max, events, onScrub }: TimelineProps = $props();
+
+// The track element. `$state` because `bind:this` writes it and an `$effect`
+// reads it to attach the ResizeObserver; a plain `let` would draw a
+// `non_reactive_update` warning. It is assigned once, during mount.
+let track: HTMLDivElement | undefined = $state();
+// NOT reactive: an in-flight pointer id, read and written only inside pointer
+// handlers. Making it `$state` would schedule renders on every drag frame.
+let activePointerId: number | null = null;
+
+const fraction = $derived(max > 0 ? currentIndex / max : 0);
+
+// Map an applied-count `index` to its physical left offset on the markers axis,
+// interpolating across the inset interior: index 0 lands at `EDGE_INSET_PX`,
+// index `max` at `100% − EDGE_INSET_PX`. Expressed as a `calc` so the safe area
+// is a fixed pixel width at any track size (rather than a width-relative %).
+const posPct = (index: number): string => {
+  const frac = max > 0 ? Math.max(0, Math.min(1, index / max)) : 0;
+  return `calc(${EDGE_INSET_PX}px + (100% - ${EDGE_INSET_PX * 2}px) * ${frac.toFixed(4)})`;
+};
+
+// The playhead nib's left offset. It rides the markers axis (`posPct`) for every
+// interior revision so a scrub lands it exactly on its marker, but RESTS in the
+// end margin at the two endpoints — parked before the first marker at revision 0,
+// after the last marker at `max` — so the nib never sits on top of a boundary seal.
+const thumbLeft = (index: number): string => {
+  if (max <= 0 || index <= 0) {
+    return `${PLAYHEAD_REST_PX}px`;
   }
+  if (index >= max) {
+    return `calc(100% - ${PLAYHEAD_REST_PX}px)`;
+  }
+  return posPct(index);
+};
 
-  const { currentIndex, max, events, onScrub }: TimelineProps = $props();
+// The progress ramp begins at the index-0 axis anchor (left = EDGE_INSET_PX) and
+// its leading edge stays glued to the nib: across the interior it spans the usable
+// band; at `max` it extends the extra end margin out to the parked nib so the
+// filled ramp still meets it; at revision 0 it is empty.
+const fillWidth = $derived.by(() => {
+  if (max <= 0 || currentIndex <= 0) {
+    return "0px";
+  }
+  if (currentIndex >= max) {
+    return `calc(100% - ${EDGE_INSET_PX + PLAYHEAD_REST_PX}px)`;
+  }
+  return `calc((100% - ${EDGE_INSET_PX * 2}px) * ${fraction.toFixed(4)})`;
+});
 
-  // The track element. `$state` because `bind:this` writes it and an `$effect`
-  // reads it to attach the ResizeObserver; a plain `let` would draw a
-  // `non_reactive_update` warning. It is assigned once, during mount.
-  let track: HTMLDivElement | undefined = $state();
-  // NOT reactive: an in-flight pointer id, read and written only inside pointer
-  // handlers. Making it `$state` would schedule renders on every drag frame.
-  let activePointerId: number | null = null;
+// Measured track width feeds collision stacking. It stays 0 until layout is
+// observed (jsdom keeps it 0 unless a test mocks ResizeObserver), so stacking is
+// inert until there is a real width to collide against — clustering never fires
+// on a guessed geometry.
+let trackWidth = $state(0);
+$effect(() => {
+  const el = track;
+  if (el === undefined) {
+    return;
+  }
+  trackWidth = el.getBoundingClientRect().width;
+  if (typeof ResizeObserver === "undefined") {
+    return;
+  }
+  const observer = new ResizeObserver((entries) => {
+    const measured = entries[0]?.contentRect.width;
+    trackWidth =
+      measured !== undefined && measured > 0 ? measured : el.getBoundingClientRect().width;
+  });
+  observer.observe(el);
+  return () => observer.disconnect();
+});
 
-  const fraction = $derived(max > 0 ? currentIndex / max : 0);
+// Collision stacking runs in the SAME inset band the seals render into, so it
+// measures against the usable interior width, not the raw track width.
+const clusters = $derived(clusterMarkers(events, max, Math.max(0, trackWidth - EDGE_INSET_PX * 2)));
 
-  // Map an applied-count `index` to its physical left offset on the markers axis,
-  // interpolating across the inset interior: index 0 lands at `EDGE_INSET_PX`,
-  // index `max` at `100% − EDGE_INSET_PX`. Expressed as a `calc` so the safe area
-  // is a fixed pixel width at any track size (rather than a width-relative %).
-  const posPct = (index: number): string => {
-    const frac = max > 0 ? Math.max(0, Math.min(1, index / max)) : 0;
-    return `calc(${EDGE_INSET_PX}px + (100% - ${EDGE_INSET_PX * 2}px) * ${frac.toFixed(4)})`;
+// Hover/focus tooltip: a single popover, driven by the active cluster id, so the
+// seal itself stays a thin jump-to button. Set on enter/focus, cleared on
+// leave/blur — making the revision data reachable by pointer AND keyboard.
+let activeId = $state<string | null>(null);
+const activeCluster = $derived(
+  activeId === null ? undefined : clusters.find((cluster) => cluster.id === activeId),
+);
+
+// Pinned expansion: clicking a stacked seal opens an interactive panel listing
+// every mark in the burst as a jump-row. The hover peek is a glance; this is the
+// reading. Only one panel is open at a time (the active stack's id), and the seal
+// is remembered so Escape can return focus to it after dismissal.
+let pinnedId = $state<string | null>(null);
+const pinnedCluster = $derived(
+  pinnedId === null ? undefined : clusters.find((cluster) => cluster.id === pinnedId),
+);
+// `$state` because `bind:this` nulls it when the panel unmounts; it is read only
+// from event handlers, so it adds no reactive dependency.
+let panelEl: HTMLDivElement | undefined = $state();
+// NOT reactive: a plain remembered element, assigned from `event.currentTarget`
+// and read only when returning focus.
+let pinnedSealEl: HTMLButtonElement | undefined;
+
+function closePanel(refocus = false): void {
+  pinnedId = null;
+  if (refocus) {
+    pinnedSealEl?.focus();
+  }
+}
+
+// While a panel is pinned, a click anywhere outside it (and outside any seal) or
+// an Escape press dismisses it — the manuscript-margin equivalent of closing a
+// pulled card. Seal targets are spared so the seal's own click can toggle/switch.
+$effect(() => {
+  if (pinnedId === null || typeof document === "undefined") {
+    return;
+  }
+  const onPointer = (event: PointerEvent): void => {
+    const target = event.target as Element | null;
+    if (target && (target.closest("[data-tl-seal]") || panelEl?.contains(target))) {
+      return;
+    }
+    closePanel();
   };
-
-  // The playhead nib's left offset. It rides the markers axis (`posPct`) for every
-  // interior revision so a scrub lands it exactly on its marker, but RESTS in the
-  // end margin at the two endpoints — parked before the first marker at revision 0,
-  // after the last marker at `max` — so the nib never sits on top of a boundary seal.
-  const thumbLeft = (index: number): string => {
-    if (max <= 0 || index <= 0) {
-      return `${PLAYHEAD_REST_PX}px`;
+  const onKey = (event: KeyboardEvent): void => {
+    if (event.key === "Escape") {
+      closePanel(true);
     }
-    if (index >= max) {
-      return `calc(100% - ${PLAYHEAD_REST_PX}px)`;
-    }
-    return posPct(index);
   };
+  document.addEventListener("pointerdown", onPointer, true);
+  document.addEventListener("keydown", onKey, true);
+  return () => {
+    document.removeEventListener("pointerdown", onPointer, true);
+    document.removeEventListener("keydown", onKey, true);
+  };
+});
 
-  // The progress ramp begins at the index-0 axis anchor (left = EDGE_INSET_PX) and
-  // its leading edge stays glued to the nib: across the interior it spans the usable
-  // band; at `max` it extends the extra end margin out to the parked nib so the
-  // filled ramp still meets it; at revision 0 it is empty.
-  const fillWidth = $derived.by(() => {
-    if (max <= 0 || currentIndex <= 0) {
-      return "0px";
-    }
-    if (currentIndex >= max) {
-      return `calc(100% - ${EDGE_INSET_PX + PLAYHEAD_REST_PX}px)`;
-    }
-    return `calc((100% - ${EDGE_INSET_PX * 2}px) * ${fraction.toFixed(4)})`;
-  });
+// Edge-aware horizontal anchoring: a centered popover near a track end would
+// spill off the page, so clamp to the seal's left/right edge in the margins.
+function tipTransform(index: number): string {
+  const frac = max > 0 ? index / max : 0;
+  if (frac <= 0.12) {
+    return "translateX(0)";
+  }
+  if (frac >= 0.88) {
+    return "translateX(-100%)";
+  }
+  return "translateX(-50%)";
+}
 
-  // Measured track width feeds collision stacking. It stays 0 until layout is
-  // observed (jsdom keeps it 0 unless a test mocks ResizeObserver), so stacking is
-  // inert until there is a real width to collide against — clustering never fires
-  // on a guessed geometry.
-  let trackWidth = $state(0);
-  $effect(() => {
-    const el = track;
-    if (el === undefined) {
+function scrubFromClientX(clientX: number): void {
+  if (track === undefined || max <= 0) {
+    onScrub(0);
+    return;
+  }
+  const rect = track.getBoundingClientRect();
+  // Invert `posPct`: the usable band runs from EDGE_INSET_PX to width −
+  // EDGE_INSET_PX, so a click anywhere in either safe-area margin clamps to the
+  // nearest bound (index 0 / max) rather than reading as a fractional position.
+  const usable = rect.width - EDGE_INSET_PX * 2;
+  const ratio = usable > 0 ? (clientX - rect.left - EDGE_INSET_PX) / usable : 0;
+  const next = Math.round(Math.max(0, Math.min(1, ratio)) * max);
+  onScrub(next);
+}
+
+function onPointerDown(event: PointerEvent): void {
+  closePanel(); // a scrub on the bare track dismisses any open detail panel
+  activePointerId = event.pointerId;
+  const target = event.currentTarget as HTMLDivElement;
+  target.setPointerCapture(event.pointerId);
+  scrubFromClientX(event.clientX);
+}
+
+function onPointerMove(event: PointerEvent): void {
+  if (activePointerId !== event.pointerId) {
+    return;
+  }
+  scrubFromClientX(event.clientX);
+}
+
+function endPointer(event: PointerEvent): void {
+  if (activePointerId !== event.pointerId) {
+    return;
+  }
+  activePointerId = null;
+  const target = event.currentTarget as HTMLDivElement;
+  if (target.hasPointerCapture(event.pointerId)) {
+    target.releasePointerCapture(event.pointerId);
+  }
+}
+
+function onKeyDown(event: KeyboardEvent): void {
+  let next: number | null = null;
+  switch (event.key) {
+    case "ArrowLeft":
+    case "ArrowDown":
+      next = currentIndex - 1;
+      break;
+    case "ArrowRight":
+    case "ArrowUp":
+      next = currentIndex + 1;
+      break;
+    case "Home":
+      next = 0;
+      break;
+    case "End":
+      next = max;
+      break;
+    default:
       return;
-    }
-    trackWidth = el.getBoundingClientRect().width;
-    if (typeof ResizeObserver === "undefined") {
-      return;
-    }
-    const observer = new ResizeObserver((entries) => {
-      const measured = entries[0]?.contentRect.width;
-      trackWidth = measured !== undefined && measured > 0 ? measured : el.getBoundingClientRect().width;
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  });
-
-  // Collision stacking runs in the SAME inset band the seals render into, so it
-  // measures against the usable interior width, not the raw track width.
-  const clusters = $derived(clusterMarkers(events, max, Math.max(0, trackWidth - EDGE_INSET_PX * 2)));
-
-  // Hover/focus tooltip: a single popover, driven by the active cluster id, so the
-  // seal itself stays a thin jump-to button. Set on enter/focus, cleared on
-  // leave/blur — making the revision data reachable by pointer AND keyboard.
-  let activeId = $state<string | null>(null);
-  const activeCluster = $derived(
-    activeId === null ? undefined : clusters.find((cluster) => cluster.id === activeId),
-  );
-
-  // Pinned expansion: clicking a stacked seal opens an interactive panel listing
-  // every mark in the burst as a jump-row. The hover peek is a glance; this is the
-  // reading. Only one panel is open at a time (the active stack's id), and the seal
-  // is remembered so Escape can return focus to it after dismissal.
-  let pinnedId = $state<string | null>(null);
-  const pinnedCluster = $derived(
-    pinnedId === null ? undefined : clusters.find((cluster) => cluster.id === pinnedId),
-  );
-  // `$state` because `bind:this` nulls it when the panel unmounts; it is read only
-  // from event handlers, so it adds no reactive dependency.
-  let panelEl: HTMLDivElement | undefined = $state();
-  // NOT reactive: a plain remembered element, assigned from `event.currentTarget`
-  // and read only when returning focus.
-  let pinnedSealEl: HTMLButtonElement | undefined;
-
-  function closePanel(refocus = false): void {
-    pinnedId = null;
-    if (refocus) {
-      pinnedSealEl?.focus();
-    }
   }
-
-  // While a panel is pinned, a click anywhere outside it (and outside any seal) or
-  // an Escape press dismisses it — the manuscript-margin equivalent of closing a
-  // pulled card. Seal targets are spared so the seal's own click can toggle/switch.
-  $effect(() => {
-    if (pinnedId === null || typeof document === "undefined") {
-      return;
-    }
-    const onPointer = (event: PointerEvent): void => {
-      const target = event.target as Element | null;
-      if (target && (target.closest("[data-tl-seal]") || panelEl?.contains(target))) {
-        return;
-      }
-      closePanel();
-    };
-    const onKey = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") {
-        closePanel(true);
-      }
-    };
-    document.addEventListener("pointerdown", onPointer, true);
-    document.addEventListener("keydown", onKey, true);
-    return () => {
-      document.removeEventListener("pointerdown", onPointer, true);
-      document.removeEventListener("keydown", onKey, true);
-    };
-  });
-
-  // Edge-aware horizontal anchoring: a centered popover near a track end would
-  // spill off the page, so clamp to the seal's left/right edge in the margins.
-  function tipTransform(index: number): string {
-    const frac = max > 0 ? index / max : 0;
-    if (frac <= 0.12) {
-      return "translateX(0)";
-    }
-    if (frac >= 0.88) {
-      return "translateX(-100%)";
-    }
-    return "translateX(-50%)";
-  }
-
-  function scrubFromClientX(clientX: number): void {
-    if (track === undefined || max <= 0) {
-      onScrub(0);
-      return;
-    }
-    const rect = track.getBoundingClientRect();
-    // Invert `posPct`: the usable band runs from EDGE_INSET_PX to width −
-    // EDGE_INSET_PX, so a click anywhere in either safe-area margin clamps to the
-    // nearest bound (index 0 / max) rather than reading as a fractional position.
-    const usable = rect.width - EDGE_INSET_PX * 2;
-    const ratio = usable > 0 ? (clientX - rect.left - EDGE_INSET_PX) / usable : 0;
-    const next = Math.round(Math.max(0, Math.min(1, ratio)) * max);
-    onScrub(next);
-  }
-
-  function onPointerDown(event: PointerEvent): void {
-    closePanel(); // a scrub on the bare track dismisses any open detail panel
-    activePointerId = event.pointerId;
-    const target = event.currentTarget as HTMLDivElement;
-    target.setPointerCapture(event.pointerId);
-    scrubFromClientX(event.clientX);
-  }
-
-  function onPointerMove(event: PointerEvent): void {
-    if (activePointerId !== event.pointerId) {
-      return;
-    }
-    scrubFromClientX(event.clientX);
-  }
-
-  function endPointer(event: PointerEvent): void {
-    if (activePointerId !== event.pointerId) {
-      return;
-    }
-    activePointerId = null;
-    const target = event.currentTarget as HTMLDivElement;
-    if (target.hasPointerCapture(event.pointerId)) {
-      target.releasePointerCapture(event.pointerId);
-    }
-  }
-
-  function onKeyDown(event: KeyboardEvent): void {
-    let next: number | null = null;
-    switch (event.key) {
-      case "ArrowLeft":
-      case "ArrowDown":
-        next = currentIndex - 1;
-        break;
-      case "ArrowRight":
-      case "ArrowUp":
-        next = currentIndex + 1;
-        break;
-      case "Home":
-        next = 0;
-        break;
-      case "End":
-        next = max;
-        break;
-      default:
-        return;
-    }
-    event.preventDefault();
-    onScrub(Math.max(0, Math.min(next, max)));
-  }
+  event.preventDefault();
+  onScrub(Math.max(0, Math.min(next, max)));
+}
 </script>
 
 <div
