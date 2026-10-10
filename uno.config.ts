@@ -486,7 +486,7 @@ export default defineConfig({
 
   // Shortcuts live in a module const (above) so `safelist` can list them all.
   shortcuts,
-  // WHY safelist: @wxt-dev/unocss has every HTML entrypoint import the SAME
+  // WHY safelist: every HTML entrypoint imports the SAME
   // `virtual:uno.css`, which Vite dedups to ONE shared CSS chunk. Shortcut
   // GENERATION then keys off whichever entry is scanned first, so shortcuts used
   // only by replay-page components were silently dropped from the shipped chunk
