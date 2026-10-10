@@ -5,7 +5,7 @@
 #
 # 1. Builds and zips both browsers (`wxt zip` builds before packaging).
 # 2. Audits the shipped manifests (scripts/verify-manifest.sh).
-# 3. Lints the Firefox build with web-ext.
+# 3. Lints the Firefox build with addons-linter.
 # 4. Runs the Playwright extension suite (e2e/, Chromium) against .output/chrome-mv3.
 # 5. Checks same-environment build determinism (scripts/verify-reproducible-build.sh).
 #
@@ -27,7 +27,7 @@ bun run zip:firefox
 step "verify-manifest.sh"
 bash scripts/verify-manifest.sh
 
-step "lint:firefox (web-ext)"
+step "lint:firefox (addons-linter)"
 bun run lint:firefox
 
 step "Playwright extension smoke (e2e/)"
