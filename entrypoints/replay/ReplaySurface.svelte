@@ -816,9 +816,7 @@ function onPlayPause(): void {
   </main>
 {/snippet}
 
-{#snippet nonReplay(
-  state: NonReplayState,
-)}
+{#snippet nonReplay(state: NonReplayState)}
   {@const category = state === "unsupported" ? "unsupported-format" : "reconstruction-failure"}
   <MessageCard
     title={state === "empty"
