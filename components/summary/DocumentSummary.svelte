@@ -259,9 +259,7 @@ const clearHover = (): void => {
      under the plot (not under the Y labels) and stay aligned with the gridlines.
      A local snippet rather than a sibling component: it is pure layout, used only
      here and only by the two charts below. -->
-{#snippet xAxis(
-  ticks: readonly DayTick[],
-)}
+{#snippet xAxis(ticks: readonly DayTick[])}
   <div class="flex">
     <div class="shrink-0" style:width={Y_AXIS_W} aria-hidden="true"></div>
     <div class="relative min-w-0 flex-1">
