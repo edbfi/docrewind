@@ -60,10 +60,10 @@ bun install --frozen-lockfile >"$work/install.log" 2>&1 || {
 hash_build() {
   local tag="$1"
   rm -f .output/*.zip
-  bun run build >"$work/$tag-build.log" 2>&1
-  bun run build:firefox >>"$work/$tag-build.log" 2>&1
-  bun run zip >>"$work/$tag-build.log" 2>&1
-  bun run zip:firefox >>"$work/$tag-build.log" 2>&1
+  bun run --bun build >"$work/$tag-build.log" 2>&1
+  bun run --bun build:firefox >>"$work/$tag-build.log" 2>&1
+  bun run --bun zip >>"$work/$tag-build.log" 2>&1
+  bun run --bun zip:firefox >>"$work/$tag-build.log" 2>&1
 
   local kind zip ex n
   for kind in chrome firefox; do

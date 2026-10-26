@@ -72,25 +72,25 @@ repos:
     hooks:
       - id: biome
         name: Format and lint with Biome
-        entry: bunx --no-install biome check --write --files-ignore-unknown=true --no-errors-on-unmatched
+        entry: bunx --bun --no-install biome check --write --files-ignore-unknown=true --no-errors-on-unmatched
         language: system
         types: [text]
         files: \.(js|mjs|cjs|ts|jsx|tsx|json|jsonc|css|svelte)$
       - id: biome-migrate
         name: Migrate Biome configuration
-        entry: bunx --no-install biome migrate --write
+        entry: bunx --bun --no-install biome migrate --write
         language: system
         stages: [manual]
         pass_filenames: false
         always_run: true
       - id: tsc
         name: TypeScript type-check
-        entry: bun run compile
+        entry: bun run --bun compile
         language: system
         pass_filenames: false
       - id: vitest
         name: Run test suite
-        entry: bun run test:run
+        entry: bun run --bun test:run
         language: system
         pass_filenames: false
         stages: [pre-push, manual]
@@ -117,7 +117,7 @@ repos:
         stages: [pre-push, manual]
       - id: test-logic
         name: Pure-logic tests (Bun)
-        entry: bun run test:logic
+        entry: bun run --bun test:logic
         language: system
         pass_filenames: false
         always_run: true
@@ -125,7 +125,7 @@ repos:
       # Coverage floor (bunfig.toml [test]) on the decoder and reconstruction tiers.
       - id: test-coverage
         name: Coverage gate (decoder/reconstruction)
-        entry: bun run test:coverage
+        entry: bun run --bun test:coverage
         language: system
         pass_filenames: false
         always_run: true

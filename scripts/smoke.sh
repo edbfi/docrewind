@@ -9,7 +9,7 @@
 # 4. Runs the Playwright extension suite (e2e/, Chromium) against .output/chrome-mv3.
 # 5. Checks same-environment build determinism (scripts/verify-reproducible-build.sh).
 #
-# Needs Playwright's Chromium: `bunx playwright install chromium` (CI adds --with-deps).
+# Needs Playwright's Chromium: `bunx --bun --no-install playwright install chromium` (CI adds --with-deps).
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -21,17 +21,17 @@ step() { printf '\n==> %s\n' "$*"; }
 rm -f .output/*.zip
 
 step "zip (Chromium) + zip:firefox"
-bun run zip
-bun run zip:firefox
+bun run --bun zip
+bun run --bun zip:firefox
 
 step "verify-manifest.sh"
 bash scripts/verify-manifest.sh
 
 step "lint:firefox (addons-linter)"
-bun run lint:firefox
+bun run --bun lint:firefox
 
 step "Playwright extension smoke (e2e/)"
-bun run test:e2e
+bun run --bun test:e2e
 
 step "verify-reproducible-build.sh"
 bash scripts/verify-reproducible-build.sh
