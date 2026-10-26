@@ -13,9 +13,9 @@ from one codebase by [WXT](https://wxt.dev).
 
 ```sh
 bun install --frozen-lockfile
-bun run postinstall      # wxt prepare — generates .wxt/ types
-bun run build            # → .output/chrome-mv3
-bun run build:firefox    # → .output/firefox-mv3
+bun run --bun postinstall      # wxt prepare — generates .wxt/ types
+bun run --bun build            # → .output/chrome-mv3
+bun run --bun build:firefox    # → .output/firefox-mv3
 ```
 
 Load the unpacked build:
