@@ -21,6 +21,9 @@ updates:
     schedule: { interval: weekly, day: monday, time: "05:00", timezone: Europe/Copenhagen }
     cooldown: { exclude: ["*"] } # zizmor: ignore[dependabot-cooldown] -- updates merge on green without delay
     commit-message: { prefix: chore, include: scope }
+    # jsdom >= 30.1 breaks Vitest under Bun until oven-sh/bun#45102 is fixed (window.addEventListener throws).
+    ignore:
+      - { dependency-name: jsdom, versions: [">=30.1.0"] }
     groups:
       biome: { patterns: ["@biomejs/*"] }
       playwright: { patterns: [playwright, "@playwright/*"] }
