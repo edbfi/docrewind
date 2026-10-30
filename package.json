@@ -6,6 +6,7 @@
   "type": "module",
   "packageManager": "bun@1.4.2",
   "scripts": {
+    "lint": "bun --bun biome ci",
     "dev": "wxt",
     "dev:firefox": "wxt -b firefox",
     "build": "wxt build",
