@@ -4,7 +4,7 @@
   "description": "Local-first Google Docs revision-replay browser extension.",
   "private": true,
   "type": "module",
-  "packageManager": "bun@1.4.2",
+  "packageManager": "bun@1.4.4",
   "scripts": {
     "lint": "bun --bun biome ci",
     "dev": "wxt",
