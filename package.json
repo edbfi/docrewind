@@ -33,7 +33,7 @@
     "svelte": "5.57.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.4",
+    "@biomejs/biome": "2.6.6",
     "@playwright/test": "1.65.0",
     "@sveltejs/vite-plugin-svelte": "7.3.1",
     "@testing-library/svelte": "5.4.2",
