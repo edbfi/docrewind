@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 
 <p align="center">
-  <img src="public/icon/docrewind.svg" alt="docrewind logo" width="256" height="256">
+  <img src="public/icon/docrewind.svg" alt="docrewind logo" width="160" height="160">
 </p>
 
 <h1 align="center">docrewind</h1>
@@ -62,3 +62,10 @@ the art changes:
 Clicking the toolbar icon opens a small popup with a one-line description and
 quick access to **Options** and an **About** panel (version, author, license,
 source). It opens no document data and requests no extra permissions.
+
+## License
+
+DocRewind's original code is licensed under the [GNU Affero General Public
+License](LICENSE), version 3 or any later version (`AGPL-3.0-or-later`).
+Third-party code retains its own terms, including the Harvard VPAL MIT notices
+in `lib/core/docs/decoder/decode.ts` and `lib/core/docs/decoder/types.ts`.
