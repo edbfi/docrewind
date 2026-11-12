@@ -1,6 +1,20 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 
-# DocRewind
+<p align="center">
+  <img src="public/icon/docrewind.svg" alt="docrewind logo" width="256" height="256">
+</p>
+
+<h1 align="center">docrewind</h1>
+
+<p align="center"><strong>Replay Google Docs revision history locally in your browser.</strong></p>
+
+<p align="center">
+  <a href="https://github.com/edbfi/docrewind/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--or--later-blue?style=flat" alt="License: AGPL-3.0-or-later"></a>
+  <a href="https://github.com/oven-sh/bun"><img src="https://img.shields.io/badge/Bun-000000?style=flat&amp;logo=bun&amp;logoColor=white" alt="Bun"></a>
+  <a href="https://github.com/wxt-dev/wxt"><img src="https://img.shields.io/badge/WXT-67D55E?style=flat" alt="WXT"></a>
+  <a href="https://github.com/sveltejs/svelte"><img src="https://img.shields.io/badge/Svelte-FF3E00?style=flat&amp;logo=svelte&amp;logoColor=white" alt="Svelte"></a>
+  <a href="https://github.com/microsoft/TypeScript"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&amp;logo=typescript&amp;logoColor=white" alt="TypeScript"></a>
+</p>
 
 Local-first browser extension that reconstructs and replays the revision history
 of a Google Doc — entirely on your own machine, with no backend, account, or
