@@ -2,6 +2,7 @@
   "name": "docrewind",
   "version": "0.1.0",
   "description": "Local-first Google Docs revision-replay browser extension.",
+  "license": "AGPL-3.0-or-later",
   "private": true,
   "type": "module",
   "packageManager": "bun@1.4.4",
