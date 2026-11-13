@@ -14,6 +14,7 @@
   <a href="https://github.com/wxt-dev/wxt"><img src="https://img.shields.io/badge/WXT-67D55E?style=flat" alt="WXT"></a>
   <a href="https://github.com/sveltejs/svelte"><img src="https://img.shields.io/badge/Svelte-FF3E00?style=flat&amp;logo=svelte&amp;logoColor=white" alt="Svelte"></a>
   <a href="https://github.com/microsoft/TypeScript"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&amp;logo=typescript&amp;logoColor=white" alt="TypeScript"></a>
+  <a href="https://github.com/edbfi/docrewind/actions/workflows/ci.yml?query=branch%3Amain"><img src="https://img.shields.io/github/actions/workflow/status/edbfi/docrewind/ci.yml?branch=main&amp;event=push&amp;label=CI&amp;style=flat" alt="CI"></a>
 </p>
 
 Local-first browser extension that reconstructs and replays the revision history
